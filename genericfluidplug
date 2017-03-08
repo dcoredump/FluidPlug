@@ -1,0 +1,69 @@
+#!/usr/bin/perl
+
+$FP_INSTALL_PATH=".";
+$SF_LIST="src/sflist";
+
+use Template;
+use File::Basename;
+
+if(!$ARGV[1]&&!$ARGV[2])
+{
+	print "Usage: $0 <SF2-soundfont> <FluidPlug-name>\n";
+	exit(1);
+}
+else
+{
+	$FP_SF2=$ARGV[0];
+	$FP_NAME=$ARGV[1];
+}
+
+# search soundfont for presets
+if(-f $FP_SF2)
+{
+	open(SF,$SF_LIST." ".$FP_SF2."|")||die("Cannot use \'".$SF_LIST." ".$FP_SF2."\'\n");
+	while($l=<SF>)
+	{
+		chop($l);
+		if($l=~/^(\d+):(\d+)\s+(.+)\s*$/)
+		{
+			push(@presets,$3);
+		}
+		else
+		{
+			print "Cannot parse \'$l\'\n";
+			exit(20);
+		}
+	}
+	close(SF);
+}
+else
+{
+	print "Cannot open ".$FP_SF2."\n";
+	exit(10);
+}
+
+my $template_vars={
+	name	=> $FP_NAME,
+        sf2	=> basename($FP_SF2),
+	lv2_prefix	=> 'https://github.com/dcoredump/GenericFluidPlug',
+	presets => \@presets,
+	box_color => 'black',
+	knob_color => 'black'
+};
+
+my $tt = Template->new({
+    INCLUDE_PATH => 'templates',
+    INTERPOLATE  => 1,
+}) || die "$Template::ERROR\n";
+
+# create directory if it not exists
+mkdir($FP_INSTALL_PATH."/".$FP_NAME) if(! -e $FP_INSTALL_PATH."/".$FP_NAME);
+
+$tt->process('manifest.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/manifest.ttl") || die $tt->error(), "\n";
+$tt->process('FluidPlug.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/FluidPlug_".$FP_NAME.".ttl") || die $tt->error(), "\n";
+$tt->process('default-preset.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/default-preset.ttl") || die $tt->error(), "\n";
+$tt->process('modgui.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/modgui.ttl") || die $tt->error(), "\n";
+$tt->process('FluidPlug.c.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/FluidPlug_".$FP_NAME.".c") || die $tt->error(), "\n";
+$tt->process('Makefile.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/Makefile") || die $tt->error(), "\n";
+system("cp -R templates/modgui ".$FP_INSTALL_PATH."/".$FP_NAME);
+system("cp ".$FP_SF2." ".$FP_INSTALL_PATH."/".$FP_NAME);

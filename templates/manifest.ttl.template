@@ -3,8 +3,8 @@
 
 <https://github.com/dcoredump/GenericFluidPlug_[% name %]>
     a lv2:Plugin ;
-    lv2:binary <FluidPlug.so> ;
-    rdfs:seeAlso <FluidPlug.ttl> , <modgui.ttl> .
+    lv2:binary <FluidPlug_[% name %].so> ;
+    rdfs:seeAlso <FluidPlug_[% name %].ttl> , <modgui.ttl> .
 
 <default-preset>
     a <http://lv2plug.in/ns/ext/presets#Preset> ;

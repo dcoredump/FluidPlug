@@ -1,0 +1,55 @@
+LDFLAGS_FLUIDSYNTH = \$(shell pkg-config --libs fluidsynth)
+CFLAGS+=-fPIC -DPIC
+LDFLAGS+=-shared \$(LDFLAGS_FLUIDSYNTH)
+
+machine = \$(shell sh -c 'uname -m 2>/dev/null || echo unknown')
+# Intel-PC
+ifneq (,\$(findstring x86,\$(machine)))
+  CPU =
+  FPU =
+  CXXFLAGS += -ffast-math -fprefetch-loop-arrays -funroll-loops -funsafe-loop-optimizations
+endif
+
+# Raspberry Pi B+, Zero, etc
+ifneq (,\$(findstring armv6l,\$(machine)))
+  CPU = -mcpu=arm1176jzf-s
+  FPU = -mfpu=vfp
+endif
+
+# Raspberry Pi 2 and 3
+ifneq (,\$(findstring armv7l,\$(machine)))
+  model = \$(shell sh -c 'cat /sys/firmware/devicetree/base/model 2>/dev/null || echo unknown')
+ifneq (,\$(findstring 3,\$(model)))
+  CPU = -mcpu=cortex-a53
+  FPU = -mfpu=neon-fp-armv8
+else
+  CPU = -mcpu=cortex-a7 -mthumb
+  FPU = -mfpu=neon-vfpv4
+endif
+  FPU += -mneon-for-64bits
+endif
+
+# ARM A64
+ifneq (,\$(findstring aarch64,\$(machine)))
+  CPU = -mcpu=cortex-a53
+  PLATFORM += -mabi=lp64 -mcmodel=tiny
+endif
+
+CXXFLAGS += \$(CPU) \$(FPU) \$(PLATFORM)
+
+install: FluidPlug_[% name %].so
+	mkdir -p \$(DEST)/FluidPlug_[% name %]
+	cp -R modgui \$(DEST)/FluidPlug_[% name %]
+	cp *.ttl \$(DEST)/FluidPlug_[% name %]
+	cp FluidPlug_[% name %].so \$(DEST)/FluidPlug_[% name %]
+	cp [% sf2 %] \$(DEST)/FluidPlug_[% name %]
+
+uninstall:
+	
+all: FluidPlug_[% name %].so
+
+FluidPlug_[% name %].so: FluidPlug_[% name %].o
+	\$(CC) FluidPlug_[% name %].o \$(LDFLAGS) -o FluidPlug_[% name %].so
+
+FluidPlug_[% name %].o: FluidPlug_[% name %].c
+	\$(CC) \$(CFLAGS) -Wall -c FluidPlug_[% name %].c

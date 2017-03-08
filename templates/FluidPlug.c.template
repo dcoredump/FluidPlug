@@ -26,12 +26,9 @@
 #include <lv2/lv2plug.in/ns/ext/midi/midi.h>
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 
-#ifndef FLUIDPLUG_LABEL
-#error FLUIDPLUG_LABEL undefined
-#endif
-
-#define FLUIDPLUG_PREFIX "http://kxstudio.linuxaudio.org/plugins/FluidPlug_"
-#define FLUIDPLUG_URI    FLUIDPLUG_PREFIX FLUIDPLUG_LABEL
+#define FLUIDPLUG_LABEL [% name %]
+#define FLUIDPLUG_PREFIX [% lv2_prefix %]
+#define FLUIDPLUG_URI "[% lv2_prefix %]_[% name %]"
 
 typedef struct {
     int bank;
@@ -109,13 +106,13 @@ static LV2_Handle lv2_instantiate(const struct _LV2_Descriptor* descriptor, doub
     fluid_synth_set_interp_method(synth, -1, FLUID_INTERP_LINEAR);
 #endif
 
-    char* filename = malloc(strlen(bundlePath) + 14 /* strlen("/FluidPlug.sf2") */ + 1);
+    char* filename = malloc(strlen(bundlePath) + strlen("/[% sf2 %]") + 1);
 
     if (filename == NULL)
         goto cleanup_synth;
 
     strcpy(filename, bundlePath);
-    strcat(filename, "/FluidPlug.sf2");
+    strcat(filename, "/[% sf2 %]");
 
     const int synthId = fluid_synth_sfload(synth, filename, 1);
 

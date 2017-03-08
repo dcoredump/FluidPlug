@@ -6,7 +6,7 @@
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 
-<http://kxstudio.linuxaudio.org/plugins/FluidPlug_[% name %]>
+<https://github.com/dcoredump/GenericFluidPlug_[% name %]>
     a lv2:InstrumentPlugin, lv2:Plugin ;
 
     lv2:requiredFeature <http://lv2plug.in/ns/ext/urid#map> ;
@@ -45,23 +45,23 @@
         lv2:portProperty lv2:enumeration , lv2:integer ;
         lv2:default 0 ;
         lv2:minimum 0 ;
-        lv2:maximum [% presets.size %];
-        lv2:scalePoint
-	[% FOREACH presets = label %]
-        [
+        lv2:maximum [% presets.size - 1 %];
+        lv2:scalePoint [
+	[% FOREACH label IN presets %]
             rdfs:label "[% label %]" ;
-            rdf:value [% loop.counter() %] ;
-        [% IF loop.count() < loop.size() %]
-        ] ,
-	[% ELSE %]
-        ] .
+            rdf:value [% loop.count() - 1 %] ;
+		[% IF loop.count() < loop.size() %]
+        ] , [
+		[% ELSE %]
+        ] ;
+		[% END %]
 	[% END %]
     ] ;
 
     mod:brand "GenericFluidPlug" ;
     mod:label "[% name %]" ;
 
-    doap:name "[% name %]" ;
+    doap:name "FluidPlug_[% name %]" ;
     doap:license "LGPL" ;
 
     doap:maintainer [
@@ -69,7 +69,7 @@
         foaf:homepage <https://github.com/dcoredump/GenericFluidPlug> ;
     ] ;
 
-    rdfs:comment """This plugin contains the '[% sf2_name %]' soundfont.""" ;
+    rdfs:comment """This plugin contains the '[% name %]' soundfont.""" ;
 
     lv2:minorVersion 2 ;
     lv2:microVersion 1 .

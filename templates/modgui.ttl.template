@@ -8,7 +8,7 @@
         modgui:stylesheet <modgui/stylesheet-generic-fluid-plug.css> ;
         modgui:screenshot <modgui/screenshot-generic-fluid-plug.png> ;
         modgui:thumbnail <modgui/thumbnail-generic-fluid-plug.png> ;
-        modgui:brand "GenericFluidPlug" ;
+        modgui:brand "FluidPlug" ;
         modgui:label "[% name %]" ;
         modgui:model "boxy" ;
         modgui:panel "1-select-1-knob" ;

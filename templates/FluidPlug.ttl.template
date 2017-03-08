@@ -58,7 +58,7 @@
 	[% END %]
     ] ;
 
-    mod:brand "GenericFluidPlug" ;
+    mod:brand "FluidPlug" ;
     mod:label "[% name %]" ;
 
     doap:name "FluidPlug_[% name %]" ;

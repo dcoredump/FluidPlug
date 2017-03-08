@@ -20,6 +20,7 @@ else
 # search soundfont for presets
 if(-f $FP_SF2)
 {
+	system("gcc -o src/sflist src/sflist.c -lfluidsynth");
 	open(SF,$SF_LIST." ".$FP_SF2."|")||die("Cannot use \'".$SF_LIST." ".$FP_SF2."\'\n");
 	while($l=<SF>)
 	{

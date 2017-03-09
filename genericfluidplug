@@ -1,13 +1,67 @@
 #!/usr/bin/perl
+#
+# genericfluidplug
+#
+# This generator builds complete LV2-plugin source-tree for a SF2 soundfont
+# for using with MOD-UI
+#
+# This project is using code from https://github.com/falkTX/FluidPlug
+#
+# (c) by H. Wirtz <dcoredump@googlemail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software Foundation,
+# Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+#
 
 use Template;
 use File::Basename;
 
 $SF_LIST="src/sflist";
 
-if(!$ARGV[1]&&!$ARGV[2])
+$option_error=0;
+while($a=shift(@ARGV))
 {
-	print "Usage: $0 <SF2-soundfont> <FluidPlug-name>\n";
+	if($a!~/^-/)
+	{
+		unshift(@ARGV,$a);
+		last;
+	}
+	elsif($a=~/-boxy-style=(.+)/)
+	{
+		$box_style=$1;
+	}
+	elsif($a=~/-knob-style=(.+)/)
+	{
+		$knob_style=$1;
+	}
+	else
+	{
+		$option_error++;
+		print "Unknown option: \'$a\'\n";
+	}
+}
+
+if(!$ARGV[0]||!$ARGV[1]||!$ARGV[2]||$option_error>0)
+{
+	if($ENV{'MODSDK'})
+	{
+		print "Usage: $0 [-boxy-style=<color>] [-knob-style=<color>] <SF2-soundfont> <FluidPlug-name> <LV2-install-path>\n";
+	}
+	else
+	{
+		print "Usage: $0 <SF2-soundfont> <FluidPlug-name> <LV2-install-path>\n";
+	}
 	exit(1);
 }
 else
@@ -15,6 +69,46 @@ else
 	$FP_SF2=$ARGV[0];
 	$FP_NAME=basename($ARGV[1]);
 	$FP_INSTALL_PATH=dirname($ARGV[1]);
+	$FP_LV2_INSTALL_PATH=$ARGV[2];
+}
+
+# check for LV2-install-path
+if(! -e $FP_LV2_INSTALL_PATH)
+{
+	print "LV2-install-path \'".$FP_LV2_INSTALL_PATH."\' does not exist\n";
+	exit(40);
+}
+
+# check if boxy/knob-color exists
+if(!$box_style)
+{
+	$box_style="black";
+}
+if(!$knob_style)
+{
+	$knob_style="black";
+}
+
+if($ENV{'MODSDK'})
+{
+        if($box_style)
+        {
+		$BOXY_COLOR_PATH=$ENV{'MODSDK'}."/html/resources/pedals/boxy/".$box_style.".png";
+		if(! -e $BOXY_COLOR_PATH)
+		{
+			print "Pedal style \'$box_style\' ($BOXY_COLOR_PATH) does not exist!\n";
+			exit(30);
+		}
+	}
+        if($knob_style)
+        {
+		$KNOB_COLOR_PATH=$ENV{'MODSDK'}."/html/resources/knobs/boxy/".$knob_style.".png";
+		if(! -e $KNOB_COLOR_PATH)
+		{
+			print "Knob style \'$knob_style\' ($KNOB_COLOR_PATH) does not exist!\n";
+			exit(31);
+		}
+	}
 }
 
 # search soundfont for presets
@@ -55,9 +149,11 @@ my $template_vars={
         sf2	=> basename($FP_SF2),
         sf2_quoted	=> basename($sf2),
 	lv2_prefix	=> 'https://github.com/dcoredump/GenericFluidPlug',
+	lv2_install_path	=> $FP_LV2_INSTALL_PATH,
 	presets => \@presets,
-	box_color => 'black',
-	knob_color => 'black'
+	box_style => $box_style,
+	knob_style => $knob_style,
+	MODSDK => $ENV{'MODSDK'}
 };
 
 my $tt = Template->new({
@@ -75,5 +171,12 @@ $tt->process('default-preset.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$
 $tt->process('modgui.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/modgui.ttl") || die $tt->error(), "\n";
 $tt->process('FluidPlug.c.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/FluidPlug_".$FP_NAME.".c") || die $tt->error(), "\n";
 $tt->process('Makefile.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/Makefile") || die $tt->error(), "\n";
-system("cp -R templates/modgui ".$FP_INSTALL_PATH."/".$FP_NAME);
 system("cp ".$sf2." ".$FP_INSTALL_PATH."/".$FP_NAME);
+system("cp -R templates/modgui ".$FP_INSTALL_PATH."/".$FP_NAME);
+if($ENV{'MODSDK'})
+{
+	system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/*.png");
+	system("cp ".$BOXY_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/");
+	system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/*.png");
+	system("cp ".$KNOB_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/");
+}

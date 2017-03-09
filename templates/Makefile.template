@@ -37,15 +37,18 @@ endif
 
 CXXFLAGS += \$(CPU) \$(FPU) \$(PLATFORM)
 
-install: FluidPlug_[% name %].so
-	mkdir -p \$(DEST)/FluidPlug_[% name %]
-	cp -R modgui \$(DEST)/FluidPlug_[% name %]
-	cp *.ttl \$(DEST)/FluidPlug_[% name %]
-	cp FluidPlug_[% name %].so \$(DEST)/FluidPlug_[% name %]
-	cp [% sf2_quoted %] \$(DEST)/FluidPlug_[% name %]
+install: uninstall pre_install screenshot
+
+pre_install: all
+	mkdir -p [% lv2_install_path %]/FluidPlug_[% name %].lv2
+	cp -R modgui [% lv2_install_path %]/FluidPlug_[% name %].lv2
+	cp *.ttl [% lv2_install_path %]/FluidPlug_[% name %].lv2
+	cp FluidPlug_[% name %].so [% lv2_install_path %]/FluidPlug_[% name %].lv2
+	cp [% sf2_quoted %] [% lv2_install_path %]/FluidPlug_[% name %].lv2
 
 uninstall:
-	
+	rm -r [% lv2_install_path %]/FluidPlug_[% name %].lv2
+
 all: FluidPlug_[% name %].so
 
 FluidPlug_[% name %].so: FluidPlug_[% name %].o
@@ -53,3 +56,7 @@ FluidPlug_[% name %].so: FluidPlug_[% name %].o
 
 FluidPlug_[% name %].o: FluidPlug_[% name %].c
 	\$(CC) \$(CFLAGS) -Wall -c FluidPlug_[% name %].c
+
+screenshot: [% IF MODSDK %]
+	[% MODSDK %]/make_screenshot.py [% lv2_install_path %]/FluidPlug_[% name %].lv2
+[% END %]

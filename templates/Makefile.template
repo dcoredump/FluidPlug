@@ -42,7 +42,7 @@ install: FluidPlug_[% name %].so
 	cp -R modgui \$(DEST)/FluidPlug_[% name %]
 	cp *.ttl \$(DEST)/FluidPlug_[% name %]
 	cp FluidPlug_[% name %].so \$(DEST)/FluidPlug_[% name %]
-	cp [% sf2 %] \$(DEST)/FluidPlug_[% name %]
+	cp [% sf2_quoted %] \$(DEST)/FluidPlug_[% name %]
 
 uninstall:
 	

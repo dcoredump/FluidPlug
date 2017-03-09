@@ -22,8 +22,8 @@ Manual installation for Zynthian:
 apt-get install -y templatetoolkit-perl 
 git clone https://github.com/dcoredump/GenericFluidPlug
 cd GenericFluidPlug
-perl ./genericfluidplug <path_to_my_sf2_file> <path_and_name_for_LV2_source_code>
-cd <path_andname_for_LV2_plugin>
+perl ./genericfluidplug <path_to_my_sf2_file> <path_and_name_for_LV2_source_code> <path_and_name_for_LV2_plugin>
+cd <path_and_name_for_LV2_source_code>
 make DEST=/zynthian/zynthian-plugins/lv2 install
 systemctl restart mod-host && systemctl restart mod-ui
 

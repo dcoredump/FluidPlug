@@ -1,5 +1,5 @@
-= FluidPlug - SoundFonts as LV2 plugins via FluidSynth by falkTX =
-== Extended generic implementation by dcoredump ==
+# FluidPlug - SoundFonts as LV2 plugins via FluidSynth by falkTX #
+## Extended generic implementation by dcoredump ##
 
 > Usage:
 > 
@@ -14,7 +14,7 @@
 mod-sdk (see https://github.com/moddevices/mod-sdk) and if you have set the
 environment-variable MODSDK pointing to your installation).
 
-=Example generic installation for Zynthian=
+# Example generic installation for Zynthian #
 
 > apt-get install -y templatetoolkit-perl 
 > git clone https://github.com/dcoredump/GenericFluidPlug
@@ -24,7 +24,7 @@ environment-variable MODSDK pointing to your installation).
 > make DEST=/zynthian/zynthian-plugins/lv2 install
 > systemctl restart mod-host && systemctl restart mod-ui
 
-= Example installation (with real data and pathnames =
+# Example installation (with real data and pathnames #
 
 > # install system package (only needed the first time)
 > apt-get install -y templatetoolkit-perl 

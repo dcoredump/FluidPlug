@@ -25,7 +25,7 @@
 #
 
 LDFLAGS_FLUIDSYNTH = \$(shell pkg-config --libs fluidsynth)
-CFLAGS+=-fPIC -DPIC
+CFLAGS+=-fPIC -DPIC -std=c11
 LDFLAGS+=-shared \$(LDFLAGS_FLUIDSYNTH)
 
 machine = \$(shell sh -c 'uname -m 2>/dev/null || echo unknown')

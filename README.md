@@ -6,7 +6,7 @@
      		[-boxy-style=<color>] 
      		[-knob-style=<color>]
         	<SF2-soundfont>
-     		<FluidPlug-name>
+     		<FluidPlug-souce-code-install-path-and-name>
      		<LV2-install-path>
  
 (`-boxy-style` and `-knob-style` are only working when you have installed

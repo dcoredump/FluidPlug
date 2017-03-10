@@ -16,7 +16,7 @@
  
 (`-boxy-style` and `-knob-style` are only working when you have installed MOD-SDK and if you have set the environment-variable MODSDK pointing to your installation **and** if they are mentioned **before** the required arguments!).
 
-#### Example generic installation for Zynthian ####
+#### Example generic usage for Zynthian ####
 
     apt-get install -y templatetoolkit-perl 
     git clone https://github.com/dcoredump/GenericFluidPlug
@@ -26,7 +26,7 @@
     make DEST=/zynthian/zynthian-plugins/lv2 install
     systemctl restart mod-host && systemctl restart mod-ui
 
-#### Example installation (with real data and pathnames) ####
+#### Example usage (with real data and pathnames) ####
 
     # install system package (only needed the first time)
     apt-get install -y templatetoolkit-perl 
@@ -44,7 +44,7 @@
     make install
     systemctl restart mod-host && systemctl restart mod-ui
 
-#### Example generic installation for Zynthian with (preinstalled) MODSDK ####
+#### Example usage installation for Zynthian with (preinstalled) MODSDK ####
 
     # install system package (only needed the first time)
     apt-get install -y templatetoolkit-perl 

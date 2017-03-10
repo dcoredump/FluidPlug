@@ -5,7 +5,7 @@
     	./genericfluidplug
      		[-boxy-style=<color>] 
      		[-knob-style=<color>]
-      	<SF2-soundfont>
+        	<SF2-soundfont>
      		<FluidPlug-name>
      		<LV2-install-path>
  
@@ -37,6 +37,26 @@ environment-variable MODSDK pointing to your installation).
     # generate your Fluidplug source code
     cd GenericFluidPlug
     perl ./genericfluidplug /tmp/Masterpiece.sf2 /zynthian/zynthian-sw/plugins/Masterpiece /zynthian/zynthian-plugins/lv2
+    cd /zynthian/zynthian-sw/plugins/Masterpiece
+    make install
+    systemctl restart mod-host && systemctl restart mod-ui
+
+# Example generic installation for Zynthian with (preinstalled) MODSDK #
+
+    # install system package (only needed the first time)
+    apt-get install -y templatetoolkit-perl 
+    # get your favorite soundfont and put it to /tmp and unzip it
+    cd /tmp
+    wget http://rkhive.com/new/new_banks/masterpiece.zip    
+    unzip masterpiece.zip
+    # enable MODSDK usage
+    export MODSDK="/zynthian/zynthian-sw/mod-sdk"
+    # get the magic builder software (only needed the first time)
+    cd /zynthian/zynthian-sw/plugins
+    git clone https://github.com/dcoredump/GenericFluidPlug
+    # generate your Fluidplug source code
+    cd GenericFluidPlug
+    perl ./genericfluidplug -boxy-style=blue -knob-style=purple /tmp/Masterpiece.sf2 /zynthian/zynthian-sw/plugins/Masterpiece /zynthian/zynthian-plugins/lv2
     cd /zynthian/zynthian-sw/plugins/Masterpiece
     make install
     systemctl restart mod-host && systemctl restart mod-ui

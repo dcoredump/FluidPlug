@@ -1,17 +1,20 @@
 # FluidPlug - SoundFonts as LV2 plugins via FluidSynth by falkTX #
 ## Extended generic implementation by dcoredump ##
 
+### Requirements ###
+1. perl, templatetoolkit-perl
+2. LV2
+3. Optional: MOD-SDK (see https://github.com/moddevices/mod-sdk)
+
 ### Usage: ###
-    	./genericfluidplug
+    	perl ./genericfluidplug
      		[-boxy-style=<color>] 
      		[-knob-style=<color>]
         	<SF2-soundfont>
      		<FluidPlug-souce-code-install-path-and-name>
      		<LV2-install-path>
  
-(`-boxy-style` and `-knob-style` are only working when you have installed
-mod-sdk (see https://github.com/moddevices/mod-sdk) and if you have set the
-environment-variable MODSDK pointing to your installation).
+(`-boxy-style` and `-knob-style` are only working when you have installed MOD-SDK and if you have set the environment-variable MODSDK pointing to your installation **and** if they are mentioned **before** the required arguments!).
 
 #### Example generic installation for Zynthian ####
 

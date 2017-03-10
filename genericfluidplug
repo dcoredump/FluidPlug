@@ -29,71 +29,83 @@ use File::Basename;
 
 $SF_LIST="src/sflist";
 
+# first, search for all options starting with '-' (they have to come first!)
 $option_error=0;
 while($a=shift(@ARGV))
 {
 	if($a!~/^-/)
 	{
+		# no futher options - put argument back and leave loop
 		unshift(@ARGV,$a);
 		last;
 	}
 	elsif($a=~/-boxy-style=(.+)/)
 	{
+		# boxy-style argument found
 		$box_style=$1;
 	}
 	elsif($a=~/-knob-style=(.+)/)
 	{
+		# knob-style argument found
 		$knob_style=$1;
 	}
 	else
 	{
+		# unknown argument found
 		$option_error++;
 		print "Unknown option: \'$a\'\n";
 	}
 }
 
+# only start when all arguments exists and no option error occured
 if(!$ARGV[0]||!$ARGV[1]||!$ARGV[2]||$option_error>0)
 {
-	if($ENV{'MODSDK'})
+	if($ENV{'MODSDK'} && -e $ENV{'MODSDK'})
 	{
+		# we have MODSDK
 		print "Usage: $0 [-boxy-style=<color>] [-knob-style=<color>] <SF2-soundfont> <FluidPlug-name> <LV2-install-path>\n";
 	}
 	else
 	{
+		# withoud MODSDK
 		print "Usage: $0 <SF2-soundfont> <FluidPlug-name> <LV2-install-path>\n";
 	}
 	exit(1);
 }
 else
 {
+	# everything is fine - store the parameters in readable variable names
 	$FP_SF2=$ARGV[0];
 	$FP_NAME=basename($ARGV[1]);
 	$FP_INSTALL_PATH=dirname($ARGV[1]);
 	$FP_LV2_INSTALL_PATH=$ARGV[2];
 }
 
-# check for LV2-install-path
+# check if LV2-install-path exists
 if(! -e $FP_LV2_INSTALL_PATH)
 {
 	print "LV2-install-path \'".$FP_LV2_INSTALL_PATH."\' does not exist\n";
 	exit(40);
 }
 
-# check if boxy/knob-color exists
-if(!$box_style)
+# set default box/knob-style
+if(!$box_style||!$ENV{'MODSDK'})
 {
 	$box_style="black";
 }
-if(!$knob_style)
+if(!$knob_style||!$ENV{'MODSDK'})
 {
 	$knob_style="black";
 }
 
-if($ENV{'MODSDK'})
+# check if boxy/knob-color exists
+if($ENV{'MODSDK'} && -e $ENV{'MODSDK'})
 {
+	# yes, we have MODSDK and want to use it.
         if($box_style)
         {
 		$BOXY_COLOR_PATH=$ENV{'MODSDK'}."/html/resources/pedals/boxy/".$box_style.".png";
+		# does the style for the box exist?
 		if(! -e $BOXY_COLOR_PATH)
 		{
 			print "Pedal style \'$box_style\' ($BOXY_COLOR_PATH) does not exist!\n";
@@ -103,6 +115,7 @@ if($ENV{'MODSDK'})
         if($knob_style)
         {
 		$KNOB_COLOR_PATH=$ENV{'MODSDK'}."/html/resources/knobs/boxy/".$knob_style.".png";
+		# does the style for the knob exist?
 		if(! -e $KNOB_COLOR_PATH)
 		{
 			print "Knob style \'$knob_style\' ($KNOB_COLOR_PATH) does not exist!\n";
@@ -111,17 +124,21 @@ if($ENV{'MODSDK'})
 	}
 }
 
-# search soundfont for presets
+# list presets inside the soundfont
 if(-f $FP_SF2)
 {
+	# check for existing helper software
 	if(! -e "src/sflist")
 	{
+		# it does not exist, so compile it
 		system("gcc -o src/sflist src/sflist.c -lfluidsynth");
 	}
 
+	# quote blanks in filename of the soundfont
 	$sf2=$FP_SF2;
 	$sf2=~s/ /\\ /g;
 
+	# walk through the soundfont presets
 	open(SF,$SF_LIST." ".$sf2."|")||die("Cannot use \'".$SF_LIST." ".$FP_SF2."\'\n");
 	while($l=<SF>)
 	{
@@ -144,39 +161,53 @@ else
 	exit(10);
 }
 
+# setup the varibales for the templates
 my $template_vars={
-	name	=> $FP_NAME,
-        sf2	=> basename($FP_SF2),
-        sf2_quoted	=> basename($sf2),
-	lv2_prefix	=> 'https://github.com/dcoredump/GenericFluidPlug',
+	name			=> $FP_NAME,
+        sf2			=> basename($FP_SF2),
+        sf2_quoted		=> basename($sf2),
+	lv2_prefix		=> 'https://github.com/dcoredump/GenericFluidPlug',
 	lv2_install_path	=> $FP_LV2_INSTALL_PATH,
-	presets => \@presets,
-	box_style => $box_style,
-	knob_style => $knob_style,
-	MODSDK => $ENV{'MODSDK'}
+	presets 		=> \@presets,
+	box_style 		=> $box_style,
+	knob_style 		=> $knob_style,
+	MODSDK 			=> $ENV{'MODSDK'}
 };
 
+# create the template engine
 my $tt = Template->new({
     INCLUDE_PATH => 'templates',
     INTERPOLATE  => 1,
 }) || die "$Template::ERROR\n";
 
-# create directory if it not exists
+# create source code output directory if it not exists
 print "Creating FluidPlug LV2-plugin at ".$FP_INSTALL_PATH."/".$FP_NAME."\n";
 mkdir($FP_INSTALL_PATH."/".$FP_NAME) if(! -e $FP_INSTALL_PATH."/".$FP_NAME);
 
+# process the templates
 $tt->process('manifest.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/manifest.ttl") || die $tt->error(), "\n";
 $tt->process('FluidPlug.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/FluidPlug_".$FP_NAME.".ttl") || die $tt->error(), "\n";
 $tt->process('default-preset.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/default-preset.ttl") || die $tt->error(), "\n";
 $tt->process('modgui.ttl.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/modgui.ttl") || die $tt->error(), "\n";
 $tt->process('FluidPlug.c.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/FluidPlug_".$FP_NAME.".c") || die $tt->error(), "\n";
 $tt->process('Makefile.template',$template_vars,$FP_INSTALL_PATH."/".$FP_NAME."/Makefile") || die $tt->error(), "\n";
+
+# copy the soundfont to the source code output directory
 system("cp ".$sf2." ".$FP_INSTALL_PATH."/".$FP_NAME);
+# copy the modgui to the source code output directory
 system("cp -R templates/modgui ".$FP_INSTALL_PATH."/".$FP_NAME);
-if($ENV{'MODSDK'})
+if($ENV{'MODSDK'} && -e $ENV{'MODSDK'} && ($BOXY_COLOR_PATH || $KNOB_COLOR_PATH))
 {
-	system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/*.png");
-	system("cp ".$BOXY_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/");
-	system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/*.png");
-	system("cp ".$KNOB_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/");
+	# if we have MODSDK: copy the styles for box and knobs (first delete the 
+	# default ones
+	if($BOXY_COLOR_PATH)
+	{
+		system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/*.png");
+		system("cp ".$BOXY_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/pedals/boxy/");
+	}
+	if($KNOB_COLOR_PATH)
+	{
+		system("rm ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/*.png");
+		system("cp ".$KNOB_COLOR_PATH." ".$FP_INSTALL_PATH."/".$FP_NAME."/modgui/knobs/boxy/");
+	}
 }

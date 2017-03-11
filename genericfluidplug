@@ -131,7 +131,7 @@ if(-f $FP_SF2)
 	if(! -e "src/sflist")
 	{
 		# it does not exist, so compile it
-		system("gcc -o src/sflist src/sflist.c -lfluidsynth");
+		system("gcc -c99 -o src/sflist src/sflist.c -lfluidsynth");
 	}
 
 	# quote blanks in filename of the soundfont

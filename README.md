@@ -19,7 +19,7 @@
 #### Example generic usage for Zynthian ####
 
     apt-get install -y templatetoolkit-perl 
-    git clone https://github.com/dcoredump/GenericFluidPlug
+    git clone -b generic https://github.com/dcoredump/GenericFluidPlug
     cd GenericFluidPlug
     perl ./genericfluidplug <path_to_my_sf2_file> <path_and_name_for_LV2_source_code> <path_and_name_for_LV2_plugin>
     cd <path_and_name_for_LV2_source_code>
@@ -36,7 +36,7 @@
     unzip masterpiece.zip
     # get the magic builder software (only needed the first time)
     cd /zynthian/zynthian-sw/plugins
-    git clone https://github.com/dcoredump/GenericFluidPlug
+    git clone -b generic https://github.com/dcoredump/GenericFluidPlug
     # generate your Fluidplug source code
     cd GenericFluidPlug
     perl ./genericfluidplug /tmp/Masterpiece.sf2 /zynthian/zynthian-sw/plugins/Masterpiece /zynthian/zynthian-plugins/lv2
@@ -56,7 +56,7 @@
     export MODSDK="/zynthian/zynthian-sw/mod-sdk"
     # get the magic builder software (only needed the first time)
     cd /zynthian/zynthian-sw/plugins
-    git clone https://github.com/dcoredump/GenericFluidPlug
+    git clone -b generic https://github.com/dcoredump/GenericFluidPlug
     # generate your Fluidplug source code
     cd GenericFluidPlug
     perl ./genericfluidplug -boxy-style=blue -knob-style=purple /tmp/Masterpiece.sf2 /zynthian/zynthian-sw/plugins/Masterpiece /zynthian/zynthian-plugins/lv2

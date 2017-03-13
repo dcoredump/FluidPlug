@@ -26,6 +26,7 @@
 
 use Template;
 use File::Basename;
+use IPC::System::Simple qw(system systemx capture capturex);
 
 $SF_LIST="src/sflist";
 
@@ -139,8 +140,8 @@ if(-f $FP_SF2)
 	$sf2=~s/ /\\ /g;
 
 	# walk through the soundfont presets
-	open(SF,$SF_LIST." ".$sf2."|")||die("Cannot use \'".$SF_LIST." ".$FP_SF2."\'\n");
-	while($l=<SF>)
+	@o=capturex($SF_LIST,$sf2);
+	foreach $l (@o)
 	{
 		chop($l);
 		if($l=~/^(\d+):(\d+)\s+(.+)\s*$/)
@@ -153,7 +154,6 @@ if(-f $FP_SF2)
 			exit(20);
 		}
 	}
-	close(SF);
 }
 else
 {

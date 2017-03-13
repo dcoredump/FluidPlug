@@ -75,6 +75,13 @@ pre_install: all
 uninstall:
 	rm -rf [% lv2_install_path %]/FluidPlug_[% name %].lv2
 
+clean:
+	rm -f FluidPlug_[% name %].so
+	rm -f FluidPlug_[% name %].o
+
+veryclean: clean
+	rm *.sf2
+
 all: FluidPlug_[% name %].so
 
 FluidPlug_[% name %].so: FluidPlug_[% name %].o
